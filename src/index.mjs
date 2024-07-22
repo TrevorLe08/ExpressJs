@@ -2,6 +2,7 @@ import express from 'express';
 
 const app = express();
 const PORT = process.env.PORT || 3000
+app.use(express.json())
 
 const mockUsers = [
     {
@@ -19,41 +20,58 @@ const mockUsers = [
         username: "Hả",
         score: 10
     },
-]
-
-const mockProducts = [
     {
-        id: 1,
-        username: "Iphone 14 Promax",
-        price: 30
+        id: 4,
+        username: "A",
+        score: 10
     },
     {
-        id: 2,
-        username: "Samsung S24 Ultra",
-        price: 30
+        id: 5,
+        username: "B",
+        score: 10
+    },
+    {
+        id: 6,
+        username: "C",
+        score: 10
     },
 ]
 
-app.get('/', (req, res) => { // request and response
-    res.status(201).send({ msg: "hello" })
-});
+app.get('/api/users', (req, res) => {
+    const { query: { filter, value } } = req;
 
-app.get('/api/users', (req,res) => {
-    res.send(mockUsers)
+    // Query parameter: when filter and value is valid
+    if (filter && value) {
+        return res.send(
+            mockUsers.filter(user => user[filter].includes(value))
+        )
+    }
+    // localhost:300/api/user?filter=...&value=...
+    return res.send(mockUsers)
 })
 
-app.get('/api/products', (req,res) => {
-    res.send(mockProducts)
-})
-
-app.get('/api/users/:id', (req,res) => {
+app.get('/api/users/:id', (req, res) => {
     const parseId = parseInt(req.params.id);
     // Return status 400 if parseId isn't number
-    if (isNaN(parseId)) return res.status(400).send({msg: "Bad Request"})
+    if (isNaN(parseId)) {
+        return res.status(400).send({ msg: "Bad Request" })
+    } 
 
     const findUser = mockUsers.find(user => user.id === parseId)
-    if (!findUser) return res.sendStatus(404);
+    if (!findUser) {
+        return res.sendStatus(404);
+    }
     return res.send(findUser)
+})
+
+app.post('/api/users',(req,res) => {
+    const {body} = req
+    const newUser = {
+        id: mockUsers[mockUsers.length - 1].id + 1,
+        ...body
+    }
+    mockUsers.push(newUser)
+    return res.status(201).send(newUser)
 })
 
 app.listen(PORT, () => {
