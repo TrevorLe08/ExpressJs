@@ -77,3 +77,6 @@ app.post('/api/users',(req,res) => {
 app.listen(PORT, () => {
     console.log(`Running on port ${PORT}`)
 });
+
+// Part 1: setup, get requests and route parameters
+// Part 2: query parameters and post requests
